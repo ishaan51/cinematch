@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block body %}
+<h2>Recommended for You</h2>
+<p class="muted">Powered by a hybrid ML model (TF-IDF + Matrix Factorization). <a href="{{ url_for('how_it_works') }}">How does it work?</a></p>
+{% if taste %}<div class="box"><b>Your taste profile</b> ({{ n_rated }} ratings):
+{% for g, a in taste %}<span class="tag">{{ g }} · avg {{ a }}★</span>{% endfor %}</div>{% endif %}
+<div class="grid">
+{% for r in recs %}{% set m = r.movie %}
+<div class="card">{% set pu = poster_url(m) %}{% if pu %}<a href="{{ url_for('movie', mid=m['id']) }}"><img class="thumb" src="{{ pu }}" alt="" loading="lazy"></a>{% endif %}<h3><a href="{{ url_for('movie', mid=m['id']) }}">{{ m['title'] }}</a></h3>
+<div class="muted">{{ m['year'] }} · {{ m['director'] }}</div>
+{% for g in m['genres'].split(',') %}<span class="tag">{{ g }}</span>{% endfor %}
+<div class="pred">Predicted for you: <b>{{ '%.1f'|format(r.pred) }}★</b></div>
+<div class="bar"><i style="width:{{ (r.pred / 5 * 100)|round }}%"></i></div>
+<div class="why">💡 {{ r.reason }}</div></div>
+{% else %}<p>Rate a few movies first and we'll suggest more!</p>{% endfor %}
+</div>{% endblock %}

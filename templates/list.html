@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% block body %}<h2>{{ title }}</h2>
+<div class="grid">{% for m in movies %}{% include '_card.html' %}{% else %}<p>{{ empty }}</p>{% endfor %}</div>{% endblock %}

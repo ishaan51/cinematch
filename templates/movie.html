@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% block body %}
+<div class="box mv">{% set pu = poster_url(m, 'w500') %}{% if pu %}<img class="big" src="{{ pu }}" alt="">{% endif %}<div class="mvbody"><h2>{{ m['title'] }} ({{ m['year'] }})</h2>
+<p class="muted">Directed by {{ m['director'] }}</p>
+{% for g in m['genres'].split(',') %}<span class="tag">{{ g }}</span>{% endfor %}
+<p>{{ m['description'] }}</p>
+{% if m['cast_names'] %}<p class="muted">Cast: {{ m['cast_names'] }}</p>{% endif %}
+{% if m['tmdb_rating'] %}<p class="muted">TMDB rating: {{ m['tmdb_rating']|round(1) }}/10 ({{ m['tmdb_votes'] }} votes)</p>{% endif %}
+<p>⭐ {{ m['avg_rating'] or 'No ratings yet' }} {% if m['votes'] %}({{ m['votes'] }} votes){% endif %}</p>
+{% if user %}
+<form class="inline" method="post" action="{{ url_for('rate', mid=m['id']) }}">Your rating:
+<select name="rating">{% for i in range(1,6) %}<option value="{{ i }}" {{ 'selected' if my_rating==i }}>{{ i }}</option>{% endfor %}</select>
+<button>Rate</button></form>
+<form class="inline" method="post" action="{{ url_for('toggle_watchlist', mid=m['id']) }}">
+<button class="alt">{{ 'Remove from watchlist' if in_list else 'Add to watchlist' }}</button></form>
+{% else %}<p class="muted"><a href="{{ url_for('login') }}">Log in</a> to rate and get recommendations.</p>{% endif %}</div></div>
+<h3>Similar movies</h3><div class="grid">{% for m in similar %}{% include '_card.html' %}{% endfor %}</div>
+{% endblock %}
