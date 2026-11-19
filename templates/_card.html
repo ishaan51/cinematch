@@ -1,0 +1,4 @@
+<div class="card">{% set pu = poster_url(m) %}{% if pu %}<a href="{{ url_for('movie', mid=m['id']) }}"><img class="thumb" src="{{ pu }}" alt="" loading="lazy"></a>{% endif %}<h3><a href="{{ url_for('movie', mid=m['id']) }}">{{ m['title'] }}</a></h3>
+<div class="muted">{{ m['year'] }} · {{ m['director'] }}</div>
+{% for g in m['genres'].split(',') %}<span class="tag">{{ g }}</span>{% endfor %}
+{% if m['avg_rating'] %}<div class="muted">⭐ {{ m['avg_rating'] }} ({{ m['votes'] }})</div>{% endif %}</div>
