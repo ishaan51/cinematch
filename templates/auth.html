@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} – CineMatch</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}"></head><body>
+
+<div class="wall" aria-hidden="true">
+  {% for col in range(4) %}
+  <div class="col {{ 'up' if col % 2 == 0 else 'down' }}">
+    <div class="track">
+      {% for rep in range(2) %}{% for m in posters %}
+        {% set i = (loop.index0 + col * 5) % posters|length %}{% set p = posters[i] %}
+        <div class="poster" style="--h:{{ (p.id * 47) % 360 }}">
+          <img src="{{ poster_url(p) or url_for('static', filename='posters/' ~ p.id ~ '.jpg') }}" alt="" loading="lazy" onerror="this.remove()">
+          <span class="t">{{ p.title }}</span><span class="y">{{ p.year }}</span>
+        </div>
+      {% endfor %}{% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="shade"></div>
+
+<main class="center">
+  <div class="panel">
+    <div class="logo">🎬 CineMatch</div>
+    <p class="tag">Movies picked just for you</p>
+    <h1>{{ title }}</h1>
+    {% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}
+    <form method="post">
+      <input name="username" placeholder="Username" autocomplete="username" required>
+      <input name="password" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button>{{ title }}</button>
+    </form>
+    <p class="alt">
+      {% if title == 'Login' %}New here? <a href="{{ url_for('register') }}">Create an account</a>{% else %}Already a member? <a href="{{ url_for('login') }}">Log in</a>{% endif %}
+      · <a href="{{ url_for('index') }}">Browse as guest</a>
+    </p>
+  </div>
+<p class="credit">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+</main>
+<script>
+// parallax: poster wall drifts with the mouse
+const wall=document.querySelector('.wall');
+document.addEventListener('mousemove',e=>{
+  const x=(e.clientX/innerWidth-.5)*30,y=(e.clientY/innerHeight-.5)*30;
+  wall.style.transform=`rotate(-8deg) scale(1.15) translate(${x}px,${y}px)`;});
+// button ripple
+document.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
+  const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),s=document.createElement('span');
+  s.className='ripple';s.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;
+  b.appendChild(s);setTimeout(()=>s.remove(),600);}));
+</script>
+</body></html>

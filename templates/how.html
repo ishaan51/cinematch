@@ -1,0 +1,54 @@
+{% extends 'base.html' %}{% block body %}
+<h2>🧠 How the Recommendation ML Works</h2>
+<p class="muted">CineMatch uses a <b>hybrid recommender system</b>: two different ML models whose outputs are blended.</p>
+
+<div class="box"><h3>Training data right now</h3>
+<span class="tag">{{ stats.users }} users</span><span class="tag">{{ stats.movies }} movies</span>
+<span class="tag">{{ stats.ratings }} ratings</span><span class="tag">{{ '%.0f'|format(stats.sparsity) }}% of the rating matrix is empty</span>
+<p class="muted">The ratings form a big user × movie table. Most cells are empty — the ML job is to <i>predict the empty cells</i>.</p></div>
+
+<div class="box"><h3>Data source · TMDB</h3>
+{% if stats.tmdb %}<p><b>{{ stats.tmdb }}</b> of the {{ stats.movies }} movies come from the <b>TMDB API</b> (real titles, genres, plot overviews, keywords, director, cast and average rating).</p>
+{% else %}<p>Currently using 24 built-in sample movies. Run <code>python tmdb_import.py --key YOUR_KEY</code> to load real movies from the TMDB API.</p>{% endif %}
+<ul><li><b>Real TMDB data → content model.</b> Overviews, keywords, cast and genres feed the TF-IDF vectors.</li>
+<li><b>TMDB average rating → quality signal</b> used to generate realistic ratings and to rank popular movies for new users.</li>
+<li><b>User ratings are simulated.</b> TMDB does not publish per-user rating history, so 5 taste personas (sci-fi, family, crime, horror, feel-good) rate the real TMDB catalogue. Ratings from real users of this app are added and the model retrains automatically.</li></ul></div>
+
+<div class="box"><h3>Model 1 · Content-Based Filtering (TF-IDF + Cosine Similarity)</h3>
+<ol>
+<li>Each movie's genres, director and description are turned into text.</li>
+<li><b>TF-IDF</b> converts the text into a number vector ({{ stats.vocab }} dimensions). Words that are rare across movies (e.g. "Horror") get more weight than common words.</li>
+<li>Your <b>taste vector</b> = sum of movie vectors, each multiplied by (your rating − your average rating). Movies you loved push the vector toward their features; movies you disliked push away.</li>
+<li><b>Cosine similarity</b> between your taste vector and every unseen movie gives a content score.</li>
+</ol>
+<pre>cos(A, B) = (A · B) / (‖A‖ × ‖B‖)</pre>
+<p class="muted">✅ Works even for brand-new movies. ❌ Never suggests anything outside what you already like.</p></div>
+
+<div class="box"><h3>Model 2 · Collaborative Filtering (Matrix Factorization)</h3>
+<p>This is the <b>supervised learning</b> part. The model learns {{ stats.k }} hidden "taste factors" for every user and every movie (for example "likes sci-fi action" or "likes family animation") so that:</p>
+<pre>predicted_rating(u, m) = μ + b_user + b_movie + (user_factors · movie_factors)</pre>
+<ul><li><b>μ</b> = global average rating, <b>b_user</b> = how generous the user is, <b>b_movie</b> = how well-liked the movie is.</li>
+<li>Training uses <b>Stochastic Gradient Descent</b>: for every known rating, compute the error and nudge the factors to reduce it, repeated for 80 epochs. <b>L2 regularisation</b> stops over-fitting.</li></ul>
+<p class="muted">✅ Finds surprising matches from users with similar taste. ❌ Needs enough ratings (cold-start problem).</p></div>
+
+<div class="box"><h3>Hybrid blend & cold start</h3>
+<pre>final = w × collaborative + (1 − w) × content        w = 0.6 × min(1, your_ratings / 8)</pre>
+<ul><li><b>0 ratings</b> → show popular movies (Bayesian average).</li>
+<li><b>Few ratings</b> → mostly content-based.</li>
+<li><b>8+ ratings</b> → 60% collaborative + 40% content.</li></ul>
+<p>Every recommendation includes a plain-English reason, so the model is <b>explainable</b>.</p></div>
+
+{% if metrics %}
+<div class="box"><h3>How accurate is it?</h3>
+<p>The ratings were split <b>80% train ({{ metrics.train }}) / 20% test ({{ metrics.test }})</b>. The model never sees the test ratings while training, then predicts them. Lower error = better.</p>
+<table><tr><th>Model</th><th>RMSE</th><th>MAE</th><th></th></tr>
+{% for name, rmse, mae in metrics.rows %}<tr><td>{{ name }}</td><td>{{ '%.3f'|format(rmse) }}</td><td>{{ '%.3f'|format(mae) }}</td>
+<td style="width:35%"><div class="bar"><i style="width:{{ (rmse / 1.6 * 100)|round }}%"></i></div></td></tr>{% endfor %}</table>
+<pre>RMSE = √( mean( (predicted − actual)² ) )     MAE = mean( |predicted − actual| )</pre>
+<p class="muted">Training error (RMSE) over epochs: {% for v in metrics.curve %}{{ '%.2f'|format(v) }}{{ ' → ' if not loop.last }}{% endfor %}</p></div>
+{% endif %}
+
+<div class="box"><h3>Tech used</h3><span class="tag">Python</span><span class="tag">NumPy</span><span class="tag">scikit-learn (TfidfVectorizer, cosine_similarity)</span>
+<span class="tag">SQLite</span><span class="tag">Flask</span>
+<p class="muted">Code: <code>ml_engine.py</code>. Demo users (e.g. <code>scifi_fan1</code>) have synthetic ratings so the model has data to learn from. Your own ratings are added to the training set and the model retrains automatically.</p></div>
+{% endblock %}

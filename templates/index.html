@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block body %}
+<form class="box" method="get"><input name="q" value="{{ q }}" placeholder="Search title or director" style="width:50%">
+<select name="genre"><option value="">All genres</option>{% for g in genres %}<option {{ 'selected' if g==genre }}>{{ g }}</option>{% endfor %}</select>
+<button>Search</button></form>
+<div class="grid">{% for m in movies %}{% include '_card.html' %}{% else %}<p>No movies found.{% if q and not tmdb_on %} <span class="muted">Only the movies stored in this app are searchable. Set the <code>TMDB_API_KEY</code> environment variable to search every movie on TMDB.</span>{% endif %}</p>{% endfor %}</div>
+{% endblock %}

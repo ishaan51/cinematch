@@ -1,0 +1,57 @@
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:Segoe UI,Arial,sans-serif;background:#0b0d14;color:#fff;overflow:hidden}
+.wall{position:fixed;inset:-10% -5%;display:flex;gap:16px;justify-content:center;transform:rotate(-8deg) scale(1.15)}
+.col{flex:1;max-width:220px;overflow:hidden}
+.track{display:flex;flex-direction:column;gap:16px}
+.up .track{animation:up 70s linear infinite}.down .track{animation:down 80s linear infinite}
+@keyframes up{to{transform:translateY(-50%)}}@keyframes down{from{transform:translateY(-50%)}to{transform:translateY(0)}}
+.poster{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;flex:none;
+  background:linear-gradient(160deg,hsl(var(--h) 70% 45%),hsl(calc(var(--h) + 50) 65% 18%));
+  box-shadow:0 6px 16px #0008;display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.poster .t{position:relative;font-weight:700;font-size:18px;line-height:1.15;text-shadow:0 2px 6px #000a}
+.poster .y{position:relative;font-size:12px;opacity:.8}
+.shade{position:fixed;inset:0;background:radial-gradient(ellipse at center,#0b0d14cc 0%,#0b0d14ee 70%)}
+.center{position:relative;min-height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
+.panel{width:100%;max-width:380px;background:#10131ccc;backdrop-filter:blur(10px);border:1px solid #ffffff22;
+  border-radius:14px;padding:30px;box-shadow:0 20px 50px #000a}
+.logo{font-size:26px;font-weight:800;letter-spacing:.5px;color:#ff4d5a}
+.tag{margin:2px 0 18px;color:#aab;font-size:13px}h1{font-size:22px;margin:0 0 14px}
+form{display:flex;flex-direction:column;gap:12px}
+input{padding:12px;border-radius:6px;border:1px solid #ffffff33;background:#1c2030;color:#fff;font:inherit}
+input:focus{outline:2px solid #ff4d5a;border-color:transparent}
+button{padding:12px;border:0;border-radius:6px;background:#ff4d5a;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+button:hover{background:#e63946}
+.flash{background:#ffd43b;color:#222;padding:9px;border-radius:6px;margin-bottom:12px;font-size:14px}
+.alt{margin:18px 0 0;font-size:13px;color:#aab;text-align:center}.alt a{color:#fff}
+@media(max-width:600px){.col:nth-child(n+3){display:none}}
+
+/* ---------- animations ---------- */
+.wall{transition:transform .25s ease-out}
+.poster{animation:pop .8s ease both;transition:transform .3s,filter .3s}
+.poster::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,#ffffff30 50%,transparent 70%);
+  transform:translateX(-120%);animation:shine 7s ease-in-out infinite}
+.col:nth-child(2) .poster::after{animation-delay:1.5s}.col:nth-child(3) .poster::after{animation-delay:3s}.col:nth-child(4) .poster::after{animation-delay:4.5s}
+@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes shine{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.shade::before,.shade::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(90px);opacity:.35;animation:orb 14s ease-in-out infinite alternate}
+.shade::before{background:#ff4d5a;left:8%;top:10%}
+.shade::after{background:#3b5bdb;right:6%;bottom:6%;animation-delay:-7s}
+@keyframes orb{to{transform:translate(80px,-60px) scale(1.25)}}
+.panel{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:none}}
+.logo{animation:glow 2.8s ease-in-out infinite alternate}
+@keyframes glow{from{text-shadow:0 0 4px #ff4d5a55}to{text-shadow:0 0 22px #ff4d5a}}
+.panel h1,.panel .tag,form>*,.alt{opacity:0;animation:fade .6s ease forwards}
+.tag{animation-delay:.3s}.panel h1{animation-delay:.4s}form>*:nth-child(1){animation-delay:.5s}form>*:nth-child(2){animation-delay:.62s}
+form>*:nth-child(3){animation-delay:.74s}.alt{animation-delay:.9s}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+input{transition:box-shadow .25s,transform .25s}input:focus{box-shadow:0 0 0 4px #ff4d5a33;transform:scale(1.02)}
+button{position:relative;overflow:hidden;transition:transform .15s,box-shadow .25s}
+button:hover{transform:translateY(-2px);box-shadow:0 8px 20px #ff4d5a66}button:active{transform:scale(.97)}
+button .ripple{position:absolute;border-radius:50%;background:#fff6;transform:scale(0);animation:ripple .6s linear;pointer-events:none}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+.flash{animation:shake .5s}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.panel h1,.panel .tag,form>*,.alt{opacity:1}}
+
+.credit{position:fixed;bottom:8px;left:0;right:0;text-align:center;font-size:11px;color:#889;margin:0}

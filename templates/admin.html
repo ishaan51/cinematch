@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% block body %}<h2>Admin Panel</h2>
+<div class="box"><h3>TMDB sync</h3><form method="post" action="{{ url_for('admin_sync') }}"><button>Sync new movies from TMDB now</button></form>
+<p class="muted">Adds new releases and newly popular films. Runs automatically every 24 hours when <code>TMDB_API_KEY</code> is set.</p></div>
+<div class="box"><h3>Add movie</h3><form method="post">
+<p><input name="title" placeholder="Title" required></p><p><input name="year" type="number" placeholder="Year"></p>
+<p><input name="genres" placeholder="Genres (comma separated)" required></p><p><input name="director" placeholder="Director"></p>
+<p><textarea name="description" placeholder="Description"></textarea></p><button>Add</button></form></div>
+<div class="box"><h3>Movies ({{ movies|length }})</h3><table>{% for m in movies %}<tr><td>{{ m['title'] }}</td><td>{{ m['genres'] }}</td>
+<td><form class="inline" method="post" action="{{ url_for('delete_movie', mid=m['id']) }}"><button class="danger">Delete</button></form></td></tr>{% endfor %}</table></div>
+<div class="box"><h3>Users</h3><table>{% for u in users %}<tr><td>{{ u['username'] }}</td><td>{{ u['role'] }}</td></tr>{% endfor %}</table></div>
+{% endblock %}
