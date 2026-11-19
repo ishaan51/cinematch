@@ -260,7 +260,6 @@ Movie information and images are provided by The Movie Database (TMDB).
 
 Project Name: CineMatch – Movie Recommendation System
 
-Project Type: College Project – SRS Experiment No. 2
 
 Backend: Python Flask
 
